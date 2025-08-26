@@ -45,6 +45,6 @@ for (LC in unique(ndvi.latest$type)){
 
 # save --------------------------------------------------------------------
 
-write.csv(df, file.path(pathShare, "raw_and_reprojected_NDVI_all_LC.csv"), row.names=F)
+write.csv(df, file.path(pathShare, "raw_and_harmonized_NDVI_all_LC.csv"), row.names=F)
 
 ######################
