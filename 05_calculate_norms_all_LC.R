@@ -14,10 +14,10 @@ pathShare <- file.path(path.google, "../Shared drives/Urban Ecological Drought/M
 source("~/Documents/GitHub/manuscript_NDVI_drought_monitoring/0_Calculate_GAMM_Posteriors.R")
 
 ######################
-#loading in and formatting raw data from 01_raw_data.R
+#loading in and formatting raw data
 ######################
 
-raw.data <- read.csv(file.path(google.drive, "Manuscript - Urban Drought NDVI Monitoring by Land Cover Class/data/raw_and_reprojected_NDVI_all_LC.csv"))
+raw.data <- read.csv(file.path(google.drive, "Manuscript - Urban Drought NDVI Monitoring by Land Cover Class/data/raw_and_harmonized_NDVI_all_LC.csv"))
 
 newDF <- data.frame(yday=seq(1:365)) #create new data frame with column to represent day of year sequence
 
