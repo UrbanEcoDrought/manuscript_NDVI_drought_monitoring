@@ -150,4 +150,4 @@ grow_sum <- grow_sum %>% rename(tukey_USDM_category = Letters)
 
 grow_sum$type <- factor(grow_sum$type, levels = c("crop", "forest", "grassland", "urban-open", "urban-low", "urban-medium", "urban-high"))
 
-write.csv(grow_sum, file.path(pathShare2, "boxplot_anomalies_tukey_table.csv"), row.names=F)
+write.csv(grow_sum, file.path(pathShare2, "appendix_table_3_boxplot_anomalies_tukey_table.csv"), row.names=F)
