@@ -62,4 +62,4 @@ harmonized_stats <- group_by(ndvi.raw, mission, month) %>%
 ndvi_stats <- raw_stats %>% inner_join(harmonized_stats, by=c("mission", "month"), suffix = c("_raw", "_harmonized"))
 ndvi_stats <- ndvi_stats[ndvi_stats$month=="Jan" | ndvi_stats$month=="Jul",]
 
-write.csv(ndvi_stats, file.path(pathShare2, "raw_vs_harmonized_table.csv"), row.names=F)
+write.csv(ndvi_stats, file.path(pathShare2, "appendix_table_1_raw_vs_harmonized_table.csv"), row.names=F)
