@@ -95,6 +95,6 @@ grow_dates <- grow_dates %>% group_by(type) %>%
 grow_dates$start <- strftime(grow_dates$start, format="%b %d" )
 grow_dates$end <- strftime(grow_dates$end, format="%b %d" )
 
-write.csv(grow_dates, file.path(pathShare2, "growing_season_dates_table.csv"), row.names=F)
+write.csv(grow_dates, file.path(pathShare2, "appendix_table_2_growing_season_dates_table.csv"), row.names=F)
 
 ######################
