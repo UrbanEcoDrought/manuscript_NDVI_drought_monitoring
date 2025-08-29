@@ -55,10 +55,20 @@ yrsderivs_merge <- yrsderivs_merge %>% arrange(type,year,date)
 
 # find significant event dates --------------------------------------------
 
-USDM_dates <- data.frame(USDM_start = as.Date(c("2005-06-14","2012-06-26","2023-05-30")),
-                         USDM_end = as.Date(c("2005-12-31", "2012-09-03", "2023-07-17")),
-                         year = c(2005,2012,2023))
+USDM_dates <- data.frame(USDM_start = as.Date(c("2005-06-14","2012-06-26","2012-10-09","2012-11-27","2023-05-30")),
+                         USDM_end = as.Date(c("2005-12-31", "2012-09-03","2012-10-29","2012-12-31","2023-07-17")),
+                         year = c(2005,2012,2012,2012,2023))
 
+USDM_dates <- USDM_dates %>%
+  arrange(year, USDM_start) %>%
+  group_by(year) %>%
+  mutate(row_in_year = row_number()) %>%
+  ungroup()
+
+first_2012_date_USDM <- USDM_dates %>%
+  filter(lubridate::year(USDM_start) == 2012) %>%
+  summarise(min_date = min(USDM_start)) %>%
+  pull(min_date)
 
 anoms_dates <- data.frame(type = character(),
                           year = numeric(),
@@ -92,12 +102,21 @@ for (LC in unique(yrs_merge$type)){
   }
 }
 
-anoms_dates <- anoms_dates %>% mutate(year = year(start_date))
-anoms_dates <- anoms_dates %>% left_join(USDM_dates, by="year")
+anoms_dates <- anoms_dates %>% 
+  mutate(year = year(start_date)) %>%
+  arrange(type, year, start_date) %>%
+  group_by(type, year) %>%
+  mutate(row_in_year = row_number()) %>%
+  ungroup()
+  
+anoms_dates <- anoms_dates %>%
+  left_join(USDM_dates, by = c("year", "row_in_year"))
+
 anoms_dates$onset_difference <- anoms_dates$start_date - anoms_dates$USDM_start 
 
 anoms_dates <- subset(anoms_dates, select = -c(start_date, recovery_date, USDM_end))
 anoms_dates <- anoms_dates %>% pivot_wider(names_from = type, values_from = onset_difference, values_fn = list(onset_difference = list))
+anoms_dates <- anoms_dates[, c("year", "row_in_year", "USDM_start", "crop", "forest", "grassland", "urban-open", "urban-low", "urban-medium", "urban-high")]
 anoms_dates <- lapply(anoms_dates, as.character)
 write.csv(anoms_dates, file.path(pathShare, "table_1_significant_negative_anoms_dates.csv"), row.names=F)
 
@@ -135,11 +154,26 @@ for (LC in unique(yrsderivs_merge$type)){
   }
 }
 
-deriv_anoms_dates <- deriv_anoms_dates %>% mutate(year = year(start_date))
-deriv_anoms_dates <- deriv_anoms_dates %>% left_join(USDM_dates, by="year")
+deriv_anoms_dates <- deriv_anoms_dates %>% 
+  mutate(year = year(start_date)) %>%
+  arrange(type, year, start_date) %>%
+  group_by(type, year) %>%
+  mutate(row_in_year = if_else(
+    year == 2012 & start_date <= first_2012_date_USDM, 
+    1L,                                # everything on/before cutoff stays as "first"
+    if_else(year == 2012, 
+            1L + cumsum(start_date > first_2012_date_USDM), # after cutoff increment from 2 upward
+            row_number()               # normal numbering for other years
+    )
+  )) %>%
+  ungroup()
+
+deriv_anoms_dates <- deriv_anoms_dates %>% left_join(USDM_dates, by=c("year", "row_in_year"))
+
 deriv_anoms_dates$onset_difference <- deriv_anoms_dates$start_date - deriv_anoms_dates$USDM_start
 
 deriv_anoms_dates <- subset(deriv_anoms_dates, select = -c(start_date, recovery_date, USDM_end))
 deriv_anoms_dates <- deriv_anoms_dates %>% pivot_wider(names_from = type, values_from = onset_difference, values_fn = list(onset_difference = list))
+deriv_anoms_dates <- deriv_anoms_dates[, c("year", "row_in_year", "USDM_start", "crop", "forest", "grassland", "urban-open", "urban-low", "urban-medium", "urban-high")]
 deriv_anoms_dates <- lapply(deriv_anoms_dates, as.character)
 write.csv(deriv_anoms_dates, file.path(pathShare, "table_2_significant_negative_deriv_anoms_dates.csv"), row.names=F)
